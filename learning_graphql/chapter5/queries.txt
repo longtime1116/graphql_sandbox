@@ -1,4 +1,4 @@
-# ↓type this on localhost:4000
+# 5.2.3
 mutation newPhoto($name: String!, $description: String) {
   postPhoto(name: $name, description: $description){
     name
@@ -18,4 +18,40 @@ query listPhotos {
 
 query totalPhotos {
   totalPhotos
+}
+
+
+# 5.2.4
+mutation newPhoto($input: PostPhotoInput!) {
+  postPhoto(input: $input) {
+    id
+    name
+    url
+    category
+    description
+  }
+}
+
+query listPhotos {
+  allPhotos {
+    id
+    url
+    name
+    category
+    description
+  }
+}
+
+query totalPhotos {
+  totalPhotos
+}
+
+
+## query variables
+{
+  "input": {
+    "name": "sample photo B",
+    "category": "GRAPHIC",
+    "description": "B sample photo for our dataset"
+  }
 }
