@@ -1,0 +1,21 @@
+# ↓type this on localhost:4000
+mutation newPhoto($name: String!, $description: String) {
+  postPhoto(name: $name, description: $description){
+    name
+    description
+  }
+}
+
+
+query listPhotos {
+  allPhotos {
+    id
+    url
+    name
+    description
+  }
+}
+
+query totalPhotos {
+  totalPhotos
+}
