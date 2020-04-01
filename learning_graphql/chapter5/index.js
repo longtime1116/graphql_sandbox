@@ -12,12 +12,20 @@ enum PhotoCategory {
   OTHERS
 }
 
+type User {
+  githubLoginID: ID!
+  name: String
+  avatar: String
+  postedPhotos: [Photo!]!
+}
+
 type Photo {
   id: ID!
   url: String!
   name: String!
   category: PhotoCategory!
   description: String
+  postedBy: User!
 }
 
 input PostPhotoInput {
@@ -28,6 +36,7 @@ input PostPhotoInput {
 
 type Query {
     totalPhotos: Int!
+    allUsers: [User!]!
     allPhotos: [Photo!]!
 }
 type Mutation {
@@ -35,11 +44,49 @@ type Mutation {
 }
 `;
 
-var photos = [];
+var users = [
+  {
+    githubLoginID: "userA",
+    name: "Alice"
+  },
+  {
+    githubLoginID: "userB",
+    name: "Bob"
+  },
+  {
+    githubLoginID: "userC",
+    name: "Chris"
+  }
+];
+
+var photos = [
+  {
+    id: 1,
+    name: "1_photo",
+    description: "This is 1_photo",
+    category: "SELFIE",
+    githubUser: "userA"
+  },
+  {
+    id: 2,
+    name: "2_photo",
+    description: "This is 2_photo",
+    category: "SELFIE",
+    githubUser: "userB"
+  },
+  {
+    id: 3,
+    name: "3_photo",
+    description: "This is 3_photo",
+    category: "ACTION",
+    githubUser: "userB"
+  }
+];
 var _id = 0;
 const resolvers = {
   Query: {
     totalPhotos: () => photos.length,
+    allUsers: () => users,
     allPhotos: () => photos
   },
   Mutation: {
@@ -55,8 +102,16 @@ const resolvers = {
     }
   },
   // 任意で追加できる、トリビアルリゾルバ
+  User: {
+    postedPhotos: parent => {
+      return photos.filter(photo => photo.githubUser == parent.githubLoginID);
+    }
+  },
   Photo: {
-    url: parent => `http://yoursite.com/img${parent.id}.jpg`
+    url: parent => `http://yoursite.com/img${parent.id}.jpg`,
+    postedBy: parent => {
+      return users.find(u => u.githubLoginID == parent.githubUser);
+    }
   }
 };
 
