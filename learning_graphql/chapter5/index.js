@@ -1,5 +1,6 @@
 //import { ApolloServer } from "apollo-server";
 const { ApolloServer } = require(`apollo-server`);
+const { GraphQLScalarType } = require(`graphql`);
 
 const typeDefs = `
 
@@ -11,6 +12,8 @@ enum PhotoCategory {
   GRAPHIC
   OTHERS
 }
+
+scalar DateTime
 
 type User {
   githubLoginID: ID!
@@ -28,6 +31,7 @@ type Photo {
   description: String
   postedBy: User!
   taggedUsers: [User!]!
+  createdAt: DateTime!
 }
 
 input PostPhotoInput {
@@ -67,21 +71,24 @@ var photos = [
     name: "1_photo",
     description: "This is 1_photo",
     category: "SELFIE",
-    githubUser: "userA"
+    githubUser: "userA",
+    createdAt: "3-15-2020"
   },
   {
     id: 2,
     name: "2_photo",
     description: "This is 2_photo",
     category: "PORTRATE",
-    githubUser: "userB"
+    githubUser: "userB",
+    createdAt: "12-20-2019"
   },
   {
     id: 3,
     name: "3_photo",
     description: "This is 3_photo",
     category: "ACTION",
-    githubUser: "userB"
+    githubUser: "userB",
+    createdAt: "2020-04-01T15:36:11.308Z"
   }
 ];
 
@@ -145,7 +152,14 @@ const resolvers = {
         .filter(tag => tag.photoID === parent.id)
         .map(tag => users.find(user => user.githubLoginID === tag.userID));
     }
-  }
+  },
+  DateTime: new GraphQLScalarType({
+    name: `DateTime`,
+    description: `A valid date time value`,
+    parseValue: value => new Date(value),
+    serialize: value => new Date(value).toISOString(),
+    parseLiteral: ast => ast.value
+  })
 };
 
 const server = new ApolloServer({ typeDefs, resolvers });
