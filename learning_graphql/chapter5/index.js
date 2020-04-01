@@ -17,6 +17,7 @@ type User {
   name: String
   avatar: String
   postedPhotos: [Photo!]!
+  inPhotos: [Photo!]!
 }
 
 type Photo {
@@ -26,6 +27,7 @@ type Photo {
   category: PhotoCategory!
   description: String
   postedBy: User!
+  taggedUsers: [User!]!
 }
 
 input PostPhotoInput {
@@ -71,7 +73,7 @@ var photos = [
     id: 2,
     name: "2_photo",
     description: "This is 2_photo",
-    category: "SELFIE",
+    category: "PORTRATE",
     githubUser: "userB"
   },
   {
@@ -82,6 +84,26 @@ var photos = [
     githubUser: "userB"
   }
 ];
+
+var tags = [
+  {
+    photoID: 1,
+    userID: "userA"
+  },
+  {
+    photoID: 2,
+    userID: "userB"
+  },
+  {
+    photoID: 3,
+    userID: "userA"
+  },
+  {
+    photoID: 3,
+    userID: "userC"
+  }
+];
+
 var _id = 0;
 const resolvers = {
   Query: {
@@ -104,13 +126,24 @@ const resolvers = {
   // 任意で追加できる、トリビアルリゾルバ
   User: {
     postedPhotos: parent => {
-      return photos.filter(photo => photo.githubUser == parent.githubLoginID);
+      return photos.filter(photo => photo.githubUser === parent.githubLoginID);
+    },
+    inPhotos: parent => {
+      return tags
+        .filter(tag => tag.userID === parent.githubLoginID)
+        .map(tag => photos.find(photo => photo.id === tag.photoID));
     }
   },
   Photo: {
     url: parent => `http://yoursite.com/img${parent.id}.jpg`,
     postedBy: parent => {
-      return users.find(u => u.githubLoginID == parent.githubUser);
+      return users.find(u => u.githubLoginID === parent.githubUser);
+    },
+    //taggedUsers: []
+    taggedUsers: parent => {
+      return tags
+        .filter(tag => tag.photoID === parent.id)
+        .map(tag => users.find(user => user.githubLoginID === tag.userID));
     }
   }
 };

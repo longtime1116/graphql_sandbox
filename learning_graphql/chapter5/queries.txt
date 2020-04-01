@@ -1,27 +1,4 @@
-# 5.2.3
-mutation newPhoto($name: String!, $description: String) {
-  postPhoto(name: $name, description: $description){
-    name
-    description
-  }
-}
-
-
-query listPhotos {
-  allPhotos {
-    id
-    url
-    name
-    description
-  }
-}
-
-query totalPhotos {
-  totalPhotos
-}
-
-
-# 5.2.4
+# Write your query or mutation here
 mutation newPhoto($input: PostPhotoInput!) {
   postPhoto(input: $input) {
     id
@@ -31,7 +8,19 @@ mutation newPhoto($input: PostPhotoInput!) {
     description
   }
 }
-
+query listUsers {
+  allUsers {
+		githubLoginID
+    name
+    postedPhotos {
+      name
+      category
+    }
+    inPhotos {
+      name
+    }
+  }
+}
 query listPhotos {
   allPhotos {
     id
@@ -39,19 +28,15 @@ query listPhotos {
     name
     category
     description
+    postedBy {
+      name
+    }
+    taggedUsers {
+      name
+    }
   }
 }
 
 query totalPhotos {
   totalPhotos
-}
-
-
-## query variables
-{
-  "input": {
-    "name": "sample photo B",
-    "category": "GRAPHIC",
-    "description": "B sample photo for our dataset"
-  }
 }
