@@ -38,8 +38,9 @@ input PostPhotoInput {
 }
 
 type Query {
-  totalPhotos: Int!
+  totalUsers: Int!
   allUsers: [User!]!
+  totalPhotos: Int!
   allPhotos(after: DateTime): [Photo!]!
 }
 type Mutation {

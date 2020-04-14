@@ -12,16 +12,29 @@ const resolvers = require("./resolvers");
 
 //console.log(process.env.DB_HOST)
 
-var app = express();
+async function start() {
+  var app = express();
+  const MONGO_DB = process.env.DB_HOST
+  console.log("db connect start...")
+  const client = await MongoClient.connect(
+    MONGO_DB,
+    { useUnifiedTopology: true }
+  )
+  console.log("db connect finished!")
+  const db = client.db()
+  const context = { db }
 
-const server = new ApolloServer({ typeDefs, resolvers });
+  const server = new ApolloServer({ typeDefs, resolvers, context });
 
-server.applyMiddleware({ app });
-app.get(`/`, (req, res) => res.end(`Welcom to the PhotoShare API.`));
-app.get(`/playground`, expressPlayground({ endpoint: `/graphql` }));
+  server.applyMiddleware({ app });
+  app.get(`/`, (req, res) => res.end(`Welcom to the PhotoShare API.`));
+  app.get(`/playground`, expressPlayground({ endpoint: `/graphql` }));
 
-app.listen({ port: 4000 }, () => {
-  console.log(
-    `GraphQL Server running @ http://localhost:4000${server.graphqlPath}`
-  );
-});
+  app.listen({ port: 4000 }, () => {
+    console.log(
+      `GraphQL Server running @ http://localhost:4000${server.graphqlPath}`
+    );
+  });
+}
+
+start()

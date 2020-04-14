@@ -63,14 +63,26 @@ var tags = [
 var _id = 0;
 const resolvers = {
     Query: {
-        totalPhotos: () => photos.length,
-        allUsers: () => users,
-        allPhotos: (parent, args) => {
-            return photos.filter(
-                photo =>
-                    new Date(photo.createdAt).getTime() > new Date(args.after).getTime()
-            );
-        }
+        totalUsers: (parent, args, { db }) =>
+            db.collection(`users`)
+                .estimatedDocumentCount(),
+        totalPhotos: (parent, args, { db }) =>
+            db.collection(`photos`)
+                .estimatedDocumentCount(),
+        allUsers: (parent, args, { db }) =>
+            db.collection(`users`)
+                .find()
+                .toArray(),
+        allPhotos: (parent, args, { db }) =>
+            db.collection(`photos`)
+                .find()
+                .toArray(),
+        //allPhotos: (parent, args) => {
+        //    return photos.filter(
+        //        photo =>
+        //            new Date(photo.createdAt).getTime() > new Date(args.after).getTime()
+        //    );
+        //}
     },
     Mutation: {
         // name と description を渡したらそれを登録する。
