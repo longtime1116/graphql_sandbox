@@ -5,9 +5,12 @@ const expressPlayground = require(`graphql-playground-middleware-express`)
   .default;
 const { readFileSync } = require(`fs`);
 const { MongoClient } = require(`mongodb`)
+require(`dotenv`).config()
 
 const typeDefs = readFileSync("./typeDefs.graphql", "UTF-8");
 const resolvers = require("./resolvers");
+
+//console.log(process.env.DB_HOST)
 
 var app = express();
 
