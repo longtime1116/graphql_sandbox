@@ -12,3 +12,6 @@
 # メモ
 * graphql-custom-types
   * 頻出の型定義の npm パッケージ。
+
+* mongodbのインストール
+  * https://github.com/mongodb/homebrew-brew
