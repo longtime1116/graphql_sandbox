@@ -4,8 +4,8 @@ const express = require(`express`);
 const expressPlayground = require(`graphql-playground-middleware-express`)
   .default;
 const { readFileSync } = require(`fs`);
-const { MongoClient } = require(`mongodb`)
-require(`dotenv`).config()
+const { MongoClient } = require(`mongodb`);
+require(`dotenv`).config();
 
 const typeDefs = readFileSync("./typeDefs.graphql", "UTF-8");
 const resolvers = require("./resolvers");
@@ -14,15 +14,14 @@ const resolvers = require("./resolvers");
 
 async function start() {
   var app = express();
-  const MONGO_DB = process.env.DB_HOST
-  console.log("db connect start...")
-  const client = await MongoClient.connect(
-    MONGO_DB,
-    { useUnifiedTopology: true }
-  )
-  console.log("db connect finished!")
-  const db = client.db()
-  const context = { db }
+  const MONGO_DB = process.env.DB_HOST;
+  console.log("db connect start...");
+  const client = await MongoClient.connect(MONGO_DB, {
+    useUnifiedTopology: true,
+  });
+  console.log("db connect finished!");
+  const db = client.db();
+  const context = { db };
 
   const server = new ApolloServer({ typeDefs, resolvers, context });
 
@@ -37,4 +36,4 @@ async function start() {
   });
 }
 
-start()
+start();
