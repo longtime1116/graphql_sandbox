@@ -7,3 +7,7 @@ brew services start mongodb-community
 brew services stop mongodb-community
 ```
 
+* githubのcodeの取得方法
+  * `https://github.com/login/oauth/authorize?client_id=<YOUR ID>&scope=true`
+  * 詳しくは[こちら](https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/#1-request-a-users-github-identity)
+
