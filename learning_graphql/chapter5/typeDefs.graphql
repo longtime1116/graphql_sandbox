@@ -13,7 +13,7 @@ enum PhotoCategory {
 scalar DateTime
 
 type User {
-  githubLoginID: ID!
+  githubLogin: ID!
   name: String
   avatar: String
   postedPhotos: [Photo!]!
@@ -31,6 +31,11 @@ type Photo {
   createdAt: DateTime!
 }
 
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
 input PostPhotoInput {
   name: String!
   category: PhotoCategory = OTHERS
@@ -45,4 +50,5 @@ type Query {
 }
 type Mutation {
   postPhoto(input: PostPhotoInput): Photo!
+  githubAuth(code: String!): AuthPayload!
 }

@@ -1,15 +1,17 @@
 const { GraphQLScalarType } = require(`graphql`);
+const fetch = require("node-fetch");
+
 var users = [
   {
-    githubLoginID: "userA",
+    githubLogin: "userA",
     name: "Alice",
   },
   {
-    githubLoginID: "userB",
+    githubLogin: "userB",
     name: "Bob",
   },
   {
-    githubLoginID: "userC",
+    githubLogin: "userC",
     name: "Chris",
   },
 ];
@@ -60,6 +62,32 @@ var tags = [
   },
 ];
 
+const requestGithubToken = (credentials) =>
+  fetch("https://github.com/login/oauth/access_token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(credentials),
+  })
+    .then((res) => res.json())
+    .catch((error) => {
+      throw new Error(JSON.stringify(error));
+    });
+
+const requestGithubUserAccount = (token) =>
+  fetch(`https://api.github.com/user?access_token=${token}`)
+    .then((res) => res.json())
+    .catch((error) => {
+      throw new Error(JSON.stringify(error));
+    });
+async function authorizeWithGithub(credentials) {
+  const { access_token } = await requestGithubToken(credentials);
+  const githubUser = await requestGithubUserAccount(access_token);
+  return { ...githubUser, access_token };
+}
+
 var _id = 0;
 const resolvers = {
   Query: {
@@ -89,30 +117,60 @@ const resolvers = {
       photos.push(newPhoto);
       return newPhoto;
     },
+    async githubAuth(parent, { code }, { db }) {
+      let {
+        message,
+        access_token,
+        avatar_url,
+        login,
+        name,
+      } = await authorizeWithGithub({
+        client_id: process.env.GITHUB_CLIENT_CODE,
+        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        code,
+      });
+
+      if (message) {
+        throw new Error(message);
+      }
+
+      let latestUserInfo = {
+        name,
+        githubLogin: login,
+        githubToken: access_token,
+        avatar: avatar_url,
+      };
+
+      const {
+        ops: [user],
+      } = await db
+        .collection("users")
+        .replaceOne({ githubLogin: login }, latestUserInfo, { upsert: true });
+
+      return { user, token: access_token };
+    },
   },
   // 任意で追加できる、トリビアルリゾルバ
   User: {
     postedPhotos: (parent) => {
-      return photos.filter(
-        (photo) => photo.githubUser === parent.githubLoginID
-      );
+      return photos.filter((photo) => photo.githubUser === parent.githubLogin);
     },
     inPhotos: (parent) => {
       return tags
-        .filter((tag) => tag.userID === parent.githubLoginID)
+        .filter((tag) => tag.userID === parent.githubLogin)
         .map((tag) => photos.find((photo) => photo.id === tag.photoID));
     },
   },
   Photo: {
     url: (parent) => `http://yoursite.com/img${parent.id}.jpg`,
     postedBy: (parent) => {
-      return users.find((u) => u.githubLoginID === parent.githubUser) || [];
+      return users.find((u) => u.githubLogin === parent.githubUser) || [];
     },
     //taggedUsers: []
     taggedUsers: (parent) => {
       return tags
         .filter((tag) => tag.photoID === parent.id)
-        .map((tag) => users.find((user) => user.githubLoginID === tag.userID));
+        .map((tag) => users.find((user) => user.githubLogin === tag.userID));
     },
   },
   DateTime: new GraphQLScalarType({
