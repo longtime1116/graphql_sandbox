@@ -91,6 +91,7 @@ async function authorizeWithGithub(credentials) {
 var _id = 0;
 const resolvers = {
   Query: {
+    me: (parent, args, { currentUser }) => currentUser,
     totalUsers: (parent, args, { db }) =>
       db.collection(`users`).estimatedDocumentCount(),
     totalPhotos: (parent, args, { db }) =>
