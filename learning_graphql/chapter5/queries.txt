@@ -8,9 +8,43 @@ mutation newPhoto($input: PostPhotoInput!) {
     description
   }
 }
+mutation addFakeUsers {
+  addFakeUsers(count: 3) {
+    name
+  }
+}
+mutation fakeUserAuth {
+  fakeUserAuth(githubLogin: "sadfrog555") {
+      token
+    	user {
+      	githubLogin
+      	name
+      	avatar
+    }
+  }
+}
+mutation githubAuth {
+	githubAuth(code: "3e8bd82becbb46a1fddf") {
+		token
+    user {
+      githubLogin
+      name
+      avatar
+    }
+	}
+}
+
+query currentUser {
+  me {
+  githubLogin
+  name
+  avatar
+}
+}
+
 query listUsers {
   allUsers {
-		githubLoginID
+		githubLogin
     name
     postedPhotos {
       name
@@ -21,8 +55,8 @@ query listUsers {
     }
   }
 }
-query listPhotos {
-  allPhotos {
+query listPhotos($after: DateTime) {
+  allPhotos(after: $after) {
     id
     url
     name
@@ -37,6 +71,32 @@ query listPhotos {
   }
 }
 
+query totalUsers {
+  totalUsers
+}
+
 query totalPhotos {
   totalPhotos
+}
+
+
+
+
+
+
+
+
+# Query variables
+{
+  "input": {
+    "name": "sample photo",
+    "category": "LANDSCAPE",
+    "description": "hello, world"
+  }
+}
+
+
+# HTTP Headers
+{
+  "Authorization": <your github token>
 }
