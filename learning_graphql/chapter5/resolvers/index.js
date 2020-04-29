@@ -109,13 +109,17 @@ const resolvers = {
   Mutation: {
     // name と description を渡したらそれを登録する。
     // id や url は自動生成
-    postPhoto: (parent, args) => {
+    async postPhoto(parent, args, { db, currentUser }) {
+      if (!currentUser) {
+        throw new Error("only an authorized user can post a photo");
+      }
       var newPhoto = {
-        id: _id++,
         ...args.input,
+        userID: currentUser.githubLogin,
         createdAt: new Date(),
       };
-      photos.push(newPhoto);
+      const { insertedIds } = await db.collection("photos").insert(newPhoto);
+      newPhoto.id = insertedIds[0];
       return newPhoto;
     },
     async githubAuth(parent, { code }, { db }) {
@@ -163,9 +167,10 @@ const resolvers = {
     },
   },
   Photo: {
-    url: (parent) => `http://yoursite.com/img${parent.id}.jpg`,
-    postedBy: (parent) => {
-      return users.find((u) => u.githubLogin === parent.githubUser) || [];
+    id: (parent) => parent.id || parent._id,
+    url: (parent) => `http://yoursite.com/img${parent._id}.jpg`,
+    postedBy: (parent, args, { db }) => {
+      return db.collection("users").findOne({ githubLogin: parent.userID });
     },
     //taggedUsers: []
     taggedUsers: (parent) => {
