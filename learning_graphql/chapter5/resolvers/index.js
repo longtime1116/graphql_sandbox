@@ -1,6 +1,8 @@
 const { GraphQLScalarType } = require(`graphql`);
 const fetch = require("node-fetch");
 
+// FIXME: mongodb を使うようになったのでこれらのローカル変数は不要になったはず。
+//        参照しているところを 修正し、削除する
 var users = [
   {
     githubLogin: "userA",
