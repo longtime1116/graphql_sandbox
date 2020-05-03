@@ -1,17 +1,32 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+//import React from 'react';
+//import ReactDOM from 'react-dom';
+//import './index.css';
+//import App from './App';
+//import * as serviceWorker from './serviceWorker';
+//
+//ReactDOM.render(
+//  <React.StrictMode>
+//    <App />
+//  </React.StrictMode>,
+//  document.getElementById('root')
+//);
+//
+//// If you want your app to work offline and load faster, you can change
+//// unregister() to register() below. Note this comes with some pitfalls.
+//// Learn more about service workers: https://bit.ly/CRA-PWA
+//serviceWorker.unregister();
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+import ApolloClient, { gql } from "apollo-boost";
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+const client = new ApolloClient({ uri: "http://localhost:4000/graphql" });
+const query = gql`
+  {
+    totalUsers
+    totalPhotos
+  }
+`;
+client
+  .query({ query })
+  .then(({ data }) => console.log("data", data))
+  //.then(() => console.log("cache", client.extract()))
+  .catch((error) => console.log(error));
