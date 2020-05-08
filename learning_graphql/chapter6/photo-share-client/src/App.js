@@ -1,17 +1,23 @@
 import React from "react";
 import Users from "./Users";
+import { BrowserRouter } from "react-router-dom";
 import { gql } from "apollo-boost";
 //import logo from "./logo.svg";
 //import "./App.css";
 
+// TODO: fragment を複数の gql で共有したい
 export const ROOT_QUERY = gql`
   query allUsers {
     totalUsers
     allUsers {
-      githubLogin
-      name
-      avatar
+      ...userInfo
     }
+  }
+
+  fragment userInfo on User {
+    githubLogin
+    name
+    avatar
   }
 `;
 export const ADD_FAKE_USERS_MUTATION = gql`
@@ -23,7 +29,14 @@ export const ADD_FAKE_USERS_MUTATION = gql`
     }
   }
 `;
-const App = () => <Users />;
+//const App = () => <Users />;
+const App = () => (
+  <BrowserRouter>
+    <div>
+      <Users />;
+    </div>
+  </BrowserRouter>
+);
 
 export default App;
 
