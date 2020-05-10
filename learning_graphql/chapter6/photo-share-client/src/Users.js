@@ -4,7 +4,7 @@ import { ROOT_QUERY, ADD_FAKE_USERS_MUTATION } from "./App";
 
 const Users = () => (
   // https://www.apollographql.com/docs/react/data/queries/#options
-  <Query query={ROOT_QUERY}>
+  <Query query={ROOT_QUERY} fetchPolicy="cache-and-network">
     {
       // https://www.apollographql.com/docs/react/data/queries/#result
       ({ data, loading, refetch }) =>
