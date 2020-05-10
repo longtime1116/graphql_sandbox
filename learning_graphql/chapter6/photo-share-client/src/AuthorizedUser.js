@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
-import { Query, Mutation } from "react-apollo";
+import { Query, Mutation, withApollo } from "react-apollo";
+import { compose } from "recompose";
 import { gql } from "apollo-boost";
 import { ROOT_QUERY } from "./App";
 
@@ -47,7 +48,7 @@ class AuthorizedUser extends Component {
     if (window.location.search.match(/code=/)) {
       this.setState({ signingIn: true });
       const code = window.location.search.replace("?code=", "");
-      alert(code);
+      //alert(code);
       this.githubAuthMutation({ variables: { code } });
     }
   }
@@ -57,9 +58,12 @@ class AuthorizedUser extends Component {
     window.location = `https://github.com/login/oauth/authorize?client_id=${clientID}&scope=user`;
   }
 
-  logout() {
+  logout = () => {
     localStorage.removeItem("token");
-  }
+    let data = this.props.client.readQuery({ query: ROOT_QUERY });
+    data.me = null;
+    this.props.client.writeQuery({ query: ROOT_QUERY, data });
+  };
 
   render() {
     return (
@@ -84,4 +88,5 @@ class AuthorizedUser extends Component {
   }
 }
 
-export default withRouter(AuthorizedUser);
+// withRouter でプロパティにhistoryを追加し、withApollo で Apollo Client を追加する
+export default compose(withApollo, withRouter)(AuthorizedUser);
