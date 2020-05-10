@@ -38,7 +38,7 @@ const App = () => (
   <BrowserRouter>
     <div>
       <AuthorizedUser />
-      <Users />;
+      <Users />
     </div>
   </BrowserRouter>
 );

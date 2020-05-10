@@ -70,7 +70,6 @@ class AuthorizedUser extends Component {
       <Mutation
         mutation={GITHUB_AUTH_MUTATION}
         update={this.authorizationComplete}
-        // NOTE: refetchQueries は必要なのか？
         refetchQueries={[{ query: ROOT_QUERY }]}
       >
         {(mutation) => {
