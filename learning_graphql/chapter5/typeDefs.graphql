@@ -56,5 +56,6 @@ type Mutation {
   addFakeUsers(count: Int = 1): [User!]!
 }
 type Subscription {
+  newUser: User!
   newPhoto: Photo!
 }

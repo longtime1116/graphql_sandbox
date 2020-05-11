@@ -136,7 +136,7 @@ const resolvers = {
         user,
       };
     },
-    async githubAuth(parent, { code }, { db }) {
+    async githubAuth(parent, { code }, { db, pubsub }) {
       let {
         message,
         access_token,
@@ -166,9 +166,10 @@ const resolvers = {
         .collection("users")
         .replaceOne({ githubLogin: login }, latestUserInfo, { upsert: true });
 
+      pubsub.publish("new-user", { newUser: user });
       return { user, token: access_token };
     },
-    addFakeUsers: async (root, { count }, { db }) => {
+    addFakeUsers: async (root, { count }, { db, pubsub }) => {
       var randomUserApi = `https://randomuser.me/api/?results=${count}`;
       var { results } = await fetch(randomUserApi).then((res) => res.json());
       var users = results.map((r) => ({
@@ -178,6 +179,14 @@ const resolvers = {
         githubToken: r.login.sha1,
       }));
       await db.collection("users").insert(users);
+      newUsers = await db
+        .collection("users")
+        .find()
+        .sort({ _id: -1 })
+        .limit(count)
+        .toArray();
+
+      users.forEach((user) => pubsub.publish("new-user", { newUser: user }));
       return users;
     },
   },
@@ -187,6 +196,9 @@ const resolvers = {
     newPhoto: {
       subscribe: (parent, args, { pubsub }) =>
         pubsub.asyncIterator("photo-added"),
+    },
+    newUser: {
+      subscribe: (parent, args, { pubsub }) => pubsub.asyncIterator("new-user"),
     },
   },
   // 任意で追加できる、トリビアルリゾルバ
