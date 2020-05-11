@@ -115,7 +115,7 @@ const resolvers = {
       if (!currentUser) {
         throw new Error("only an authorized user can post a photo");
       }
-      var newPhoto = {
+      const newPhoto = {
         ...args.input,
         userID: currentUser.githubLogin,
         createdAt: new Date(),

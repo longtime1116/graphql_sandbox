@@ -55,3 +55,6 @@ type Mutation {
   fakeUserAuth(githubLogin: ID!): AuthPayload!
   addFakeUsers(count: Int = 1): [User!]!
 }
+type Subscription {
+  newPhoto: Photo!
+}

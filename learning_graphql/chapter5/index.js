@@ -1,5 +1,6 @@
 //import { ApolloServer } from "apollo-server";
 const { ApolloServer } = require(`apollo-server-express`);
+const { createServer } = require("http");
 const express = require(`express`);
 const expressPlayground = require(`graphql-playground-middleware-express`)
   .default;
@@ -36,7 +37,10 @@ async function start() {
   app.get(`/`, (req, res) => res.end(`Welcom to the PhotoShare API.`));
   app.get(`/playground`, expressPlayground({ endpoint: `/graphql` }));
 
-  app.listen({ port: 4000 }, () => {
+  const httpServer = createServer(app);
+  // これによりws://localhost:4000/graphql でサブスクリプションを利用できるようになる
+  server.installSubscriptionHandlers(httpServer);
+  httpServer.listen({ port: 4000 }, () => {
     console.log(
       `GraphQL Server running @ http://localhost:4000${server.graphqlPath}`
     );
