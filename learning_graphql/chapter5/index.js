@@ -1,5 +1,5 @@
 //import { ApolloServer } from "apollo-server";
-const { ApolloServer } = require(`apollo-server-express`);
+const { ApolloServer, PubSub } = require(`apollo-server-express`);
 const { createServer } = require("http");
 const express = require(`express`);
 const expressPlayground = require(`graphql-playground-middleware-express`)
@@ -23,13 +23,14 @@ async function start() {
   console.log("db connect finished!");
   const db = client.db();
 
+  const pubsub = new PubSub();
   const server = new ApolloServer({
     typeDefs,
     resolvers,
     context: async ({ req }) => {
-      const githubToken = req.headers.authorization;
+      const githubToken = req && req.headers.authorization;
       const currentUser = await db.collection("users").findOne({ githubToken });
-      return { db, currentUser };
+      return { db, currentUser, pubsub };
     },
   });
 

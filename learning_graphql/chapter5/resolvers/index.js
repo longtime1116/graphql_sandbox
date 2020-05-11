@@ -111,17 +111,19 @@ const resolvers = {
   Mutation: {
     // name と description を渡したらそれを登録する。
     // id や url は自動生成
-    async postPhoto(parent, args, { db, currentUser }) {
+    async postPhoto(parent, args, { db, currentUser, pubsub }) {
       if (!currentUser) {
         throw new Error("only an authorized user can post a photo");
       }
-      const newPhoto = {
+      var newPhoto = {
         ...args.input,
         userID: currentUser.githubLogin,
         createdAt: new Date(),
       };
       const { insertedIds } = await db.collection("photos").insert(newPhoto);
       newPhoto.id = insertedIds[0];
+      // postPhoto mutation が実行されたとき、"photo-added" イベントを発行する
+      pubsub.publish("photo-added", { newPhoto });
       return newPhoto;
     },
     async fakeUserAuth(parent, { githubLogin }, { db }) {
@@ -177,6 +179,14 @@ const resolvers = {
       }));
       await db.collection("users").insert(users);
       return users;
+    },
+  },
+  Subscription: {
+    // client は事前に newPhoto を呼び出してwebsocketを開いておく。
+    // そうすると、"photo-added"イベントが発行されたときに通知を受け取ることができる
+    newPhoto: {
+      subscribe: (parent, args, { pubsub }) =>
+        pubsub.asyncIterator("photo-added"),
     },
   },
   // 任意で追加できる、トリビアルリゾルバ
