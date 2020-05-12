@@ -45,22 +45,16 @@ const LISTEN_FOR_USERS = gql`
   }
 `;
 
-//const App = () => <Users />;
 class App extends Component {
   componentDidMount() {
     let { client } = this.props;
     this.listenForUsers = client
       .subscribe({ query: LISTEN_FOR_USERS })
       .subscribe(({ data: { newUser } }) => {
-        console.log("subscribe event...");
-        const data = client.readQuery({ query: ROOT_QUERY });
-        console.log(data.totalUsers);
+        const data = Object.assign({}, client.readQuery({ query: ROOT_QUERY }));
         data.totalUsers += 1;
         data.allUsers = [...data.allUsers, newUser];
-        // FIXME: writeQuery しても components が update されない問題・・・
         client.writeQuery({ query: ROOT_QUERY, data });
-        //const data2 = client.readQuery({ query: ROOT_QUERY });
-        //console.log(data2.totalUsers);
       });
   }
   componentWillUnmount() {

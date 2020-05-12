@@ -13,7 +13,7 @@ import { persistCache } from "apollo-cache-persist";
 import { WebSocketLink } from "apollo-link-ws";
 import { getMainDefinition } from "apollo-utilities";
 
-const cache = new InMemoryCache();
+const cache = new InMemoryCache({ freezeResults: true });
 persistCache({
   cache,
   storage: localStorage,
