@@ -51,7 +51,7 @@ class App extends Component {
     this.listenForUsers = client
       .subscribe({ query: LISTEN_FOR_USERS })
       .subscribe(({ data: { newUser } }) => {
-        const data = Object.assign({}, client.readQuery({ query: ROOT_QUERY }));
+        const data = { ...client.readQuery({ query: ROOT_QUERY }) };
         data.totalUsers += 1;
         data.allUsers = [...data.allUsers, newUser];
         client.writeQuery({ query: ROOT_QUERY, data });
