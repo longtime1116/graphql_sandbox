@@ -57,6 +57,7 @@ class App extends Component {
         console.log(data.totalUsers);
         data.totalUsers += 1;
         data.allUsers = [...data.allUsers, newUser];
+        // FIXME: writeQuery しても components が update されない問題・・・
         client.writeQuery({ query: ROOT_QUERY, data });
         //const data2 = client.readQuery({ query: ROOT_QUERY });
         //console.log(data2.totalUsers);
