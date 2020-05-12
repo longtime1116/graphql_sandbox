@@ -1,8 +1,9 @@
-import React from "react";
+import React, { Component } from "react";
 import Users from "./Users";
 import AuthorizedUser from "./AuthorizedUser";
 import { BrowserRouter } from "react-router-dom";
 import { gql } from "apollo-boost";
+import { withApollo } from "react-apollo";
 //import logo from "./logo.svg";
 //import "./App.css";
 
@@ -33,17 +34,51 @@ export const ADD_FAKE_USERS_MUTATION = gql`
     }
   }
 `;
-//const App = () => <Users />;
-const App = () => (
-  <BrowserRouter>
-    <div>
-      <AuthorizedUser />
-      <Users />
-    </div>
-  </BrowserRouter>
-);
 
-export default App;
+const LISTEN_FOR_USERS = gql`
+  subscription {
+    newUser {
+      githubLogin
+      name
+      avatar
+    }
+  }
+`;
+
+//const App = () => <Users />;
+class App extends Component {
+  componentDidMount() {
+    let { client } = this.props;
+    this.listenForUsers = client
+      .subscribe({ query: LISTEN_FOR_USERS })
+      .subscribe(({ data: { newUser } }) => {
+        console.log("subscribe event...");
+        const data = client.readQuery({ query: ROOT_QUERY });
+        console.log(data.totalUsers);
+        data.totalUsers += 1;
+        data.allUsers = [...data.allUsers, newUser];
+        client.writeQuery({ query: ROOT_QUERY, data });
+        //const data2 = client.readQuery({ query: ROOT_QUERY });
+        //console.log(data2.totalUsers);
+      });
+  }
+  componentWillUnmount() {
+    this.listenForUsers.unsubscribe();
+  }
+  render() {
+    return (
+      <BrowserRouter>
+        <div>
+          <AuthorizedUser />
+          <Users />
+        </div>
+      </BrowserRouter>
+    );
+  }
+}
+
+// App から client を呼び出せるように
+export default withApollo(App);
 
 //function App() {
 //  return (

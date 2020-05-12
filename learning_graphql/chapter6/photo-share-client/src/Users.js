@@ -21,11 +21,11 @@ const Users = () => (
   </Query>
 );
 
-const updateUserCache = (cache, { data: { addFakeUsers } }) => {
-  let data = cache.readQuery({ query: ROOT_QUERY });
+const updateUserCache = (client, { data: { addFakeUsers } }) => {
+  let data = client.readQuery({ query: ROOT_QUERY });
   data.totalUsers += addFakeUsers.length;
   data.allUsers = [...data.allUsers, ...addFakeUsers];
-  cache.writeQuery({ query: ROOT_QUERY, data });
+  client.writeQuery({ query: ROOT_QUERY, data });
 };
 
 const UserList = ({ count, users, refetchUsers }) => (

@@ -19,7 +19,7 @@ persistCache({
   storage: localStorage,
 });
 
-console.log(localStorage["apollo-cache-persist"]);
+//console.log(localStorage["apollo-cache-persist"]);
 if (localStorage["apollo-cache-persist"]) {
   let cacheData = JSON.parse(localStorage["apollo-cache-persist"]);
   cache.restore(cacheData);
