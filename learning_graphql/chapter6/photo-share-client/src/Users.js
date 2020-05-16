@@ -22,7 +22,7 @@ const Users = () => (
 );
 
 const updateUserCache = (client, { data: { addFakeUsers } }) => {
-  let data = client.readQuery({ query: ROOT_QUERY });
+  let data = { ...client.readQuery({ query: ROOT_QUERY }) };
   data.totalUsers += addFakeUsers.length;
   data.allUsers = [...data.allUsers, ...addFakeUsers];
   client.writeQuery({ query: ROOT_QUERY, data });

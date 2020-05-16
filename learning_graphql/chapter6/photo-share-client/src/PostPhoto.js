@@ -1,15 +1,39 @@
 import React, { Component } from "react";
+import { Mutation } from "react-apollo";
+import { gql } from "apollo-boost";
+import { ROOT_QUERY } from "./App";
+
+const POST_PHOTO_MUTATION = gql`
+  mutation postPhoto($input: PostPhotoInput!) {
+    postPhoto(input: $input) {
+      id
+      name
+      url
+    }
+  }
+`;
+
+const updatePhotos = (cache, { date: { postPhoto } }) => {
+  let data = { ...cache.readQuery({ query: ROOT_QUERY }) };
+  data.allPhotos = [postPhoto, ...data.allPhotos];
+  cache.writeQuery({ query: ROOT_QUERY, data });
+};
 
 export default class PostPhoto extends Component {
   state = {
     name: "",
     description: "",
-    category: "PORTRAIT",
+    category: "PORTRATE",
     file: "",
   };
-  postPhoto = (mutation) => {
-    console.log("todo: post photo");
+  postPhoto = async (mutation) => {
     console.log(this.state);
+    await mutation({
+      variables: {
+        input: this.state,
+      },
+    }).catch((error) => console.log({ error, hoge: "hogeeee" }));
+    this.props.history.replace("/");
   };
 
   render() {
@@ -57,17 +81,22 @@ export default class PostPhoto extends Component {
           type="file"
           style={{ margin: "10px" }}
           accept="image/jpeg"
-          onChange={({ target }) =>
+          onChange={({ target }) => {
             this.setState({
               file: target.files && target.files.length ? target.files[0] : "",
-            })
-          }
+            });
+          }}
         />
 
         <div style={{ margin: "10px" }}>
-          <button onClick={() => this.postPhoto()}>Post Photo</button>
+          <Mutation mutation={POST_PHOTO_MUTATION} update={updatePhotos}>
+            {(mutation) => (
+              <button onClick={() => this.postPhoto(mutation)}>
+                Post Photo
+              </button>
+            )}
+          </Mutation>
         </div>
-        <button onClick={() => this.props.history.goBack()}>Cancel</button>
       </form>
     );
   }
