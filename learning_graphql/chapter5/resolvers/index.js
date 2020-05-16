@@ -1,5 +1,7 @@
 const { GraphQLScalarType } = require(`graphql`);
 const fetch = require("node-fetch");
+const { uploadStream } = require("../lib");
+const path = require("path");
 
 // FIXME: mongodb を使うようになったのでこれらのローカル変数は不要になったはず。
 //        参照しているところを 修正し、削除する
@@ -115,6 +117,7 @@ const resolvers = {
       if (!currentUser) {
         throw new Error("only an authorized user can post a photo");
       }
+      console.log("photo posted!!");
       var newPhoto = {
         ...args.input,
         userID: currentUser.githubLogin,
@@ -122,6 +125,16 @@ const resolvers = {
       };
       const { insertedIds } = await db.collection("photos").insert(newPhoto);
       newPhoto.id = insertedIds[0];
+      var toPath = path.join(
+        __dirname,
+        "..",
+        "assets",
+        "photos",
+        `${newPhoto.id}.jpg`
+      );
+      const { stream } = await args.input.file;
+      //console.log(stream);
+      await uploadStream(stream, toPath);
       // postPhoto mutation が実行されたとき、"photo-added" イベントを発行する
       pubsub.publish("photo-added", { newPhoto });
       return newPhoto;
@@ -214,7 +227,7 @@ const resolvers = {
   },
   Photo: {
     id: (parent) => parent.id || parent._id,
-    url: (parent) => `http://yoursite.com/img${parent._id}.jpg`,
+    url: (parent) => `/img/photos/${parent._id}.jpg`,
     postedBy: (parent, args, { db }) => {
       return db.collection("users").findOne({ githubLogin: parent.userID });
     },

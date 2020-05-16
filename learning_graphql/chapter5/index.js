@@ -6,6 +6,7 @@ const expressPlayground = require(`graphql-playground-middleware-express`)
   .default;
 const { readFileSync } = require(`fs`);
 const { MongoClient } = require(`mongodb`);
+const path = require("path");
 require(`dotenv`).config();
 
 const typeDefs = readFileSync("./typeDefs.graphql", "UTF-8");
@@ -33,6 +34,11 @@ async function start() {
       return { db, currentUser, pubsub };
     },
   });
+
+  app.use(
+    "/img/photos",
+    express.static(path.join(__dirname, "assets", "photos"))
+  );
 
   server.applyMiddleware({ app });
   app.get(`/`, (req, res) => res.end(`Welcom to the PhotoShare API.`));
